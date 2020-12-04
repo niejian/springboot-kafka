@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @desc: cn.com.bluemoon.message.listener.MsgListener
@@ -83,13 +82,17 @@ public class MsgListener {
                     e.printStackTrace();
                 }
 
-                return "消费成功";
+                return "消费成功, consum success";
             }, threadPoolTaskExecutor);
             try {
-                future.get();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+
+                // 业务逻辑处理完，回调
+                future.whenCompleteAsync((s, e) -> {
+                    log.info("获取业务返回结果：{}", s);
+                    e.printStackTrace();
+                });
+
+            }  catch (Exception e) {
                 e.printStackTrace();
             }
             acknowledgment.acknowledge();
